@@ -169,9 +169,11 @@
 </div>
 
 <script>
-const WEBHOOK_URL = "https://hook.us2.make.com/pov83s82qi8l1rlecly82yh8t07qkegv";
-const ADMIN_PIN   = "1234";
-const STORAGE_KEY = "georgelab_quiz_v3";
+const GITHUB_TOKEN  = "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";
+const GITHUB_REPO   = "BrainAddiction/georgelab-quiz";
+const GITHUB_BRANCH = "main";
+const ADMIN_PIN     = "1234";
+const STORAGE_KEY   = "georgelab_quiz_v3";
 
 // ── Questions ─────────────────────────────────────────────────────
 const ALL_QUESTIONS = [
@@ -254,12 +256,53 @@ let allResults=[];
 function loadResults(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]")}catch{return[]}}
 function saveLocal(entry){const r=loadResults();r.unshift(entry);localStorage.setItem(STORAGE_KEY,JSON.stringify(r.slice(0,500)))}
 
-// ── Webhook ───────────────────────────────────────────────────────
-async function sendToWebhook(entry){
-  try{
-    const res=await fetch(WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(entry)});
-    return res.ok;
-  }catch(e){console.error("Webhook error:",e);return false;}
+// ── GitHub save ───────────────────────────────────────────────────
+async function sendToWebhook(entry) {
+  try {
+    const pct   = Math.round((entry.score / entry.total) * 100);
+    const grade = pct===100?"Perfect Score":pct>=85?"Senior Researcher":pct>=70?"Competent Lab Member":pct>=50?"Needs Review":"Lab Probation";
+    const d     = new Date(entry.date);
+    const dateStr = d.toISOString().slice(0,10);
+    const timeStr = d.toTimeString().slice(0,5).replace(":","h");
+    const safeName = entry.name.replace(/[^a-zA-Z0-9]/g,"_");
+    const path  = `results/${dateStr}_${safeName}_${timeStr}.json`;
+
+    const payload = {
+      name:       entry.name,
+      date:       entry.date,
+      score:      entry.score,
+      total:      entry.total,
+      percent:    pct + "%",
+      grade:      grade,
+      violations: (entry.violations||[]).map(v => ({
+        rule:     v.rule,
+        question: v.question,
+        chosen:   v.chosen,
+        correct:  v.correct,
+      }))
+    };
+
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${path}`, {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${GITHUB_TOKEN}`,
+        "Content-Type":  "application/json",
+        "Accept":        "application/vnd.github+json",
+      },
+      body: JSON.stringify({
+        message: `Quiz result: ${entry.name} — ${pct}%`,
+        content: content,
+        branch:  GITHUB_BRANCH,
+      }),
+    });
+
+    return res.ok || res.status === 201;
+  } catch(e) {
+    console.error("GitHub save error:", e);
+    return false;
+  }
 }
 
 // ── Screens ───────────────────────────────────────────────────────
@@ -302,7 +345,7 @@ async function runTest(){
   if(ok){
     btn.textContent="✅ Confirmed! Webhook received the data";
     btn.style.color="#22c55e";
-    note.textContent="Now check Make.com — wire the webhook to Airtable to complete the setup.";
+    note.textContent="Check your GitHub repo — a new file appeared in the results/ folder!";
     note.style.display="block";
     saveLocal(entry);
   }else{
