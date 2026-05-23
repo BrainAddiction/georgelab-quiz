@@ -114,7 +114,10 @@
 <div class="max720">
   <div class="header-bar">
     <div><div class="left" id="quiz-name-label"></div><div class="title">Commandments Quiz</div></div>
-    <div><div class="score" id="quiz-progress"></div><div class="score-sub" id="quiz-score-label"></div></div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div><div class="score" id="quiz-progress"></div><div class="score-sub" id="quiz-score-label"></div></div>
+      <button onclick="submitEarly()" style="background:#ef4444;color:white;border:none;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;width:auto;margin:0">Submit Now</button>
+    </div>
   </div>
   <div class="progress"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
   <div class="badge" id="section-badge"></div>
@@ -129,8 +132,7 @@
     <button class="exp-btn btn-outline" onclick="toggleExp()" id="exp-btn" style="width:100%;margin-bottom:8px">💡 Why? Show Explanation ▼</button>
     <div class="explanation" id="explanation" style="display:none"></div>
     <div style="display:flex;gap:10px">
-      <button class="btn-dark" id="next-btn" onclick="nextQuestion()" style="flex:1">Next Question →</button>
-      <button class="btn-outline" onclick="submitEarly()" style="flex:0 0 auto;padding:13px 16px;font-size:13px;white-space:nowrap">Submit Now ⏎</button>
+      <button class="btn-dark" id="next-btn" onclick="nextQuestion()">Next Question →</button>
     </div>
   </div>
 </div>
