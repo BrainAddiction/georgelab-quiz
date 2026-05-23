@@ -104,11 +104,7 @@
     <input type="text" id="name-input" placeholder="Enter your full name" onkeydown="if(event.key==='Enter')startQuiz()">
     <button class="btn-primary" id="start-btn" onclick="startQuiz()" disabled>Start Quiz →</button>
     <button class="btn-secondary" onclick="showLeaderboard()">🏅 View Staff Results</button>
-    <div style="border-top:1px solid #334155;padding-top:14px;margin-top:4px">
-      <div style="font-size:11px;color:#475569;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Admin / Setup</div>
-      <button class="btn-dashed" id="test-btn" onclick="runTest()">🧪 Test Airtable Connection</button>
-      <p id="test-note" style="font-size:11px;color:#64748b;margin-top:6px;display:none"></p>
-    </div>
+
   </div>
 </div>
 </div>
@@ -132,7 +128,10 @@
     <div class="feedback" id="feedback-msg"></div>
     <button class="exp-btn btn-outline" onclick="toggleExp()" id="exp-btn" style="width:100%;margin-bottom:8px">💡 Why? Show Explanation ▼</button>
     <div class="explanation" id="explanation" style="display:none"></div>
-    <button class="btn-dark" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    <div style="display:flex;gap:10px">
+      <button class="btn-dark" id="next-btn" onclick="nextQuestion()" style="flex:1">Next Question →</button>
+      <button class="btn-outline" onclick="submitEarly()" style="flex:0 0 auto;padding:13px 16px;font-size:13px;white-space:nowrap">Submit Now ⏎</button>
+    </div>
   </div>
 </div>
 </div>
@@ -322,37 +321,14 @@ function startQuiz(){
   show("quiz");
 }
 
-async function runTest(){
-  const btn=document.getElementById("test-btn");
-  const note=document.getElementById("test-note");
-  btn.textContent="⏳ Sending test entry…";
-  btn.disabled=true;
-  note.style.display="none";
-
-  const entry={
-    name:"TEST USER (auto)",
-    score:ALL_QUESTIONS.length-3,
-    total:ALL_QUESTIONS.length,
-    violations:ALL_QUESTIONS.slice(0,3).map(q=>({
-      rule:q.r,question:q.q,
-      chosen:q.a[(q.c+1)%q.a.length],
-      correct:q.a[q.c],explanation:q.e
-    })),
-    date:new Date().toISOString()
-  };
-
-  const ok=await sendToWebhook(entry);
-  if(ok){
-    btn.textContent="✅ Confirmed! Webhook received the data";
-    btn.style.color="#22c55e";
-    note.textContent="Check your GitHub repo — a new file appeared in the results/ folder!";
-    note.style.display="block";
-    saveLocal(entry);
-  }else{
-    btn.textContent="❌ Failed — check the webhook URL";
-    btn.style.color="#ef4444";
+async function submitEarly(){
+  if(!confirm(`Submit now after ${idx+1} of ${questions.length} questions?\n\nRemaining questions will count as unanswered.`))return;
+  // Mark all unasked questions as violations
+  for(let i=idx+1;i<questions.length;i++){
+    const q=questions[i];
+    violations.push({rule:q.r,question:q.q,correct:q.a[q.c],chosen:"(not answered)",explanation:q.e});
   }
-  btn.disabled=false;
+  await finishQuiz();
 }
 
 // ── Quiz ──────────────────────────────────────────────────────────
@@ -455,14 +431,13 @@ async function finishQuiz(){
   renderResults(currentResult);
   show("results");
 
-  const savingEl=document.getElementById("result-saving");
-  savingEl.textContent="💾 Saving to Airtable…";
+  savingEl.textContent="💾 Saving results…";
   savingEl.style.color="#64748b";
 
   const ok=await sendToWebhook(currentResult);
   saveLocal(currentResult);
 
-  savingEl.textContent=ok?"✓ Saved to Airtable":"⚠️ Saved locally (Airtable sync failed)";
+  savingEl.textContent=ok?"✓ Results saved":"⚠️ Saved locally only";
   savingEl.style.color=ok?"#22c55e":"#f59e0b";
 }
 
