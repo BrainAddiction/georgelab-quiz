@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>George Lab Commandments Quiz</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:#f1f5f9;min-height:100vh;padding:20px 16px}
+  .card{background:#1e293b;border-radius:16px;padding:32px 28px;color:white;text-align:center;margin-bottom:16px}
+  .card h1{font-size:24px;margin-bottom:4px}
+  .card p{color:#94a3b8;font-size:14px;margin-bottom:24px}
+  input[type=text],input[type=password]{width:100%;padding:13px 14px;border-radius:10px;border:2px solid #475569;background:#0f172a;color:white;font-size:15px;margin-bottom:12px;outline:none}
+  button{width:100%;padding:13px;border-radius:10px;border:none;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;transition:background 0.2s}
+  .btn-primary{background:#3b82f6;color:white}
+  .btn-primary:disabled{background:#334155;cursor:default}
+  .btn-secondary{background:transparent;border:2px solid #475569;color:#94a3b8}
+  .btn-dark{background:#1e293b;color:white}
+  .btn-purple{background:#8b5cf6;color:white}
+  .btn-outline{background:white;border:2px solid #1e293b;color:#1e293b}
+  .btn-dashed{background:transparent;border:2px dashed #475569;color:#64748b}
+  .btn-danger{background:white;border:1px solid #fca5a5;color:#dc2626}
+  .progress{height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-bottom:16px}
+  .progress-bar{height:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);border-radius:99px;transition:width 0.3s}
+  .badge{display:inline-block;color:white;font-size:12px;font-weight:700;padding:4px 12px;border-radius:99px;margin-bottom:12px}
+  .question-card{border-radius:14px;padding:20px;margin-bottom:16px;border:2px solid}
+  .question-rule{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+  .question-text{font-size:16px;font-weight:600;color:#1e293b;line-height:1.5}
+  .answer-btn{width:100%;padding:12px 16px;border-radius:10px;font-size:14px;font-weight:500;text-align:left;cursor:pointer;display:flex;align-items:center;gap:10px;margin-bottom:8px;border:2px solid #e2e8f0;background:white;color:#1e293b;transition:all 0.15s}
+  .answer-btn.selected{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+  .answer-btn.correct{background:#f0fdf4;border-color:#22c55e;color:#15803d}
+  .answer-btn.wrong{background:#fff1f2;border-color:#ef4444;color:#991b1b}
+  .answer-circle{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;color:white}
+  .feedback{border-radius:10px;padding:12px 16px;margin-bottom:8px;font-size:14px;font-weight:600}
+  .feedback.correct{background:#f0fdf4;border:1px solid #86efac;color:#15803d}
+  .feedback.wrong{background:#fff1f2;border:1px solid #fca5a5;color:#991b1b}
+  .explanation{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 16px;margin-bottom:8px;font-size:13px;color:#374151;line-height:1.6}
+  .exp-btn{background:white;border:2px solid #e2e8f0;color:#475569;font-size:13px;padding:10px}
+  .header-bar{background:#1e293b;border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+  .header-bar .left{color:#94a3b8;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+  .header-bar .title{color:white;font-weight:700;font-size:15px}
+  .header-bar .score{color:#fbbf24;font-weight:700;font-size:20px;text-align:right}
+  .header-bar .score-sub{color:#64748b;font-size:12px}
+  .result-score{font-size:52px;font-weight:800;margin:10px 0}
+  .result-pct{font-size:22px;font-weight:700;color:#fbbf24;margin-bottom:6px}
+  .result-grade{font-size:15px;color:#94a3b8}
+  .violation-box{background:#fff1f2;border:1px solid #fca5a5;border-radius:12px;padding:20px;margin-bottom:16px}
+  .violation-box h2{color:#991b1b;font-size:16px;margin-bottom:14px}
+  .violation-item{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #fecaca}
+  .violation-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .violation-rule{font-size:11px;font-weight:700;color:#dc2626;text-transform:uppercase;margin-bottom:3px}
+  .violation-q{font-size:13px;color:#374151;margin-bottom:3px}
+  .violation-wrong{font-size:13px;color:#991b1b;margin-bottom:2px}
+  .violation-correct{font-size:13px;color:#15803d;font-weight:600;margin-bottom:5px}
+  .exp-toggle{font-size:12px;color:#3b82f6;background:none;border:none;cursor:pointer;font-weight:600;padding:0;width:auto}
+  .exp-detail{margin-top:8px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 12px;font-size:13px;color:#1e40af;line-height:1.6}
+  .perfect{background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:20px;margin-bottom:16px;text-align:center;color:#15803d;font-weight:600;font-size:16px}
+  .btn-row{display:flex;gap:10px;margin-bottom:10px}
+  .btn-row button{flex:1}
+  .lb-header{background:#1e293b;border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+  .lb-header .title{color:white;font-weight:700;font-size:16px}
+  .lb-header .sub{color:#94a3b8;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+  .sort-bar{display:flex;gap:8px;margin-bottom:14px;align-items:center}
+  .sort-btn{padding:6px 14px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer}
+  .sort-btn.active{background:#1e293b;color:white}
+  .sort-btn.inactive{background:#f1f5f9;color:#475569}
+  .sort-count{margin-left:auto;font-size:12px;color:#94a3b8}
+  .entry{background:white;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:8px}
+  .entry-header{padding:14px 16px}
+  .entry-name{font-weight:700;font-size:15px;color:#1e293b}
+  .entry-date{margin-left:10px;font-size:12px;color:#64748b}
+  .entry-pct{font-weight:800;font-size:16px}
+  .entry-score{font-size:12px;color:#94a3b8;margin-left:6px}
+  .entry-bar{height:5px;background:#f1f5f9;border-radius:99px;overflow:hidden;margin:8px 0}
+  .entry-bar-fill{height:100%;border-radius:99px}
+  .admin-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
+  .admin-box h3{font-size:13px;font-weight:700;color:#1e293b;margin-bottom:10px}
+  .pin-row{display:flex;gap:8px}
+  .pin-row input{flex:1;margin-bottom:0}
+  .pin-row button{width:auto;padding:10px 18px;font-size:13px}
+  .pin-error{color:#ef4444;font-size:12px;margin-top:6px}
+  .admin-unlocked{flex:1;background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:10px 14px;font-size:13px;color:#15803d;font-weight:600;display:flex;align-items:center}
+  .viol-detail{background:#fff7ed;border-top:1px solid #fed7aa;padding:14px 16px}
+  .viol-detail-title{font-size:12px;font-weight:700;color:#92400e;text-transform:uppercase;margin-bottom:10px}
+  .confirm-row{display:flex;gap:10px}
+  .confirm-row button{flex:1;padding:11px;font-size:13px}
+  .saving{font-size:12px;margin-top:10px}
+  .empty{text-align:center;color:#94a3b8;padding:40px;background:#f8fafc;border-radius:12px}
+  #screen-name,#screen-quiz,#screen-results,#screen-leaderboard{display:none}
+  #screen-name.active,#screen-quiz.active,#screen-results.active,#screen-leaderboard.active{display:block}
+  .max480{max-width:480px;margin:0 auto}
+  .max720{max-width:720px;margin:0 auto}
+</style>
+</head>
+<body>
+
+<!-- NAME SCREEN -->
+<div id="screen-name">
+<div class="max480">
+  <div class="card">
+    <div style="font-size:44px;margin-bottom:10px">🧬</div>
+    <h1>George Lab</h1>
+    <p>Commandments Quiz — 56 questions</p>
+    <input type="text" id="name-input" placeholder="Enter your full name" onkeydown="if(event.key==='Enter')startQuiz()">
+    <button class="btn-primary" id="start-btn" onclick="startQuiz()" disabled>Start Quiz →</button>
+    <button class="btn-secondary" onclick="showLeaderboard()">🏅 View Staff Results</button>
+    <div style="border-top:1px solid #334155;padding-top:14px;margin-top:4px">
+      <div style="font-size:11px;color:#475569;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Admin / Setup</div>
+      <button class="btn-dashed" id="test-btn" onclick="runTest()">🧪 Test Airtable Connection</button>
+      <p id="test-note" style="font-size:11px;color:#64748b;margin-top:6px;display:none"></p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div id="screen-quiz">
+<div class="max720">
+  <div class="header-bar">
+    <div><div class="left" id="quiz-name-label"></div><div class="title">Commandments Quiz</div></div>
+    <div><div class="score" id="quiz-progress"></div><div class="score-sub" id="quiz-score-label"></div></div>
+  </div>
+  <div class="progress"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+  <div class="badge" id="section-badge"></div>
+  <div class="question-card" id="question-card">
+    <div class="question-rule" id="question-rule"></div>
+    <div class="question-text" id="question-text"></div>
+  </div>
+  <div id="answers-container"></div>
+  <button class="btn-dark" id="confirm-btn" onclick="confirmAnswer()" disabled>Confirm Answer</button>
+  <div id="feedback-area" style="display:none">
+    <div class="feedback" id="feedback-msg"></div>
+    <button class="exp-btn btn-outline" onclick="toggleExp()" id="exp-btn" style="width:100%;margin-bottom:8px">💡 Why? Show Explanation ▼</button>
+    <div class="explanation" id="explanation" style="display:none"></div>
+    <button class="btn-dark" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+  </div>
+</div>
+</div>
+
+<!-- RESULTS SCREEN -->
+<div id="screen-results">
+<div class="max720">
+  <div class="card">
+    <div style="font-size:44px;margin-bottom:8px">🧬</div>
+    <div style="color:#94a3b8;font-size:13px;margin-bottom:4px" id="result-name-date"></div>
+    <div class="result-score" id="result-score"></div>
+    <div class="result-pct" id="result-pct"></div>
+    <div class="result-grade" id="result-grade"></div>
+    <div class="saving" id="result-saving"></div>
+  </div>
+  <div id="violations-container"></div>
+  <div class="btn-row">
+    <button class="btn-outline" onclick="downloadResults()">⬇ Download Results</button>
+    <button class="btn-purple" onclick="showLeaderboard()">🏅 Leaderboard</button>
+  </div>
+  <button class="btn-dark" onclick="retake()">🔄 Retake Quiz</button>
+</div>
+</div>
+
+<!-- LEADERBOARD SCREEN -->
+<div id="screen-leaderboard">
+<div class="max720">
+  <div class="lb-header">
+    <div><div class="sub">George Lab</div><div class="title">🏅 Staff Results</div></div>
+    <button class="btn-secondary" style="width:auto;padding:8px 14px;font-size:13px" onclick="backFromLeaderboard()">← Back</button>
+  </div>
+  <div id="lb-content"></div>
+</div>
+</div>
+
+<script>
+const WEBHOOK_URL = "https://hook.us2.make.com/pov83s82qi8l1rlecly82yh8t07qkegv";
+const ADMIN_PIN   = "1234";
+const STORAGE_KEY = "georgelab_quiz_v3";
+
+// ── Questions ─────────────────────────────────────────────────────
+const ALL_QUESTIONS = [
+  {s:"🧪 Experimental Design",q:"When testing drugs, how many vehicle injections must you do BEFORE starting your Latin square design?",a:["At least 1","At least 2","At least 3","None — go straight to Latin square"],c:1,r:"Experiment Rule #1",e:"At least 2 vehicle injections before the Latin square are required to establish a stable baseline. A single vehicle session is insufficient to confirm baseline stability."},
+  {s:"🧪 Experimental Design",q:"After finishing your Latin square design, you shall do ___ vehicle injection(s) to ensure no change in baseline.",a:["0 — it's not necessary","1","2","3"],c:1,r:"Experiment Rule #2",e:"One vehicle injection after the Latin square confirms that baseline responding has not drifted. It can be averaged with pre-treatment vehicles to increase statistical power."},
+  {s:"🧪 Experimental Design",q:"How often should you brevital test your animals?",a:["Every week","Every two weeks","Only at key time points / end of study","Every session"],c:2,r:"Experiment Rule #3",e:"Brevital testing too frequently stresses animals, can skew results, and risks accidental death. Only test at key time points such as after surgery recovery or at the end of ShA/LgA phases."},
+  {s:"🧪 Experimental Design",q:"At lab/PI meetings, data must be presented as if for a manuscript. Which of the following is NOT required?",a:["N number","Average + individual data points","Raw MedPC event files","SEM and full stats"],c:2,r:"Experiment Rule #4",e:"Raw MedPC files are source data, not presentation material. All figures must be publication-ready: N, mean, individual data points, SEM, and full statistics."},
+  {s:"🧪 Experimental Design",q:"Before performing intracranial (IC) surgery, you must test your stereotaxic coordinates on at least how many animals?",a:["1","2","3","5"],c:2,r:"Experiment Rule #5",e:"Testing coordinates on at least 3 animals ensures reliability of placement. A single animal is insufficient to rule out individual anatomical variation."},
+  {s:"🧪 Experimental Design",q:"Animals should be tested during which period, unless strong evidence suggests otherwise?",a:["Light period","Dark period","Crepuscular period","Any period — it doesn't matter"],c:1,r:"Experiment Rule #6",e:"Rats are nocturnal and most active during the dark period. Testing during the light period suppresses motivation and behavioral responding."},
+  {s:"🧪 Experimental Design",q:"How often must you measure animal body weight?",a:["Daily","At least once a week","At least twice a week","Only at the start and end of the experiment"],c:1,r:"Experiment Rule #8",e:"Weekly body weight is a basic welfare and health monitoring requirement. It also provides essential data for calculating drug doses by weight."},
+  {s:"🧪 Experimental Design",q:"How long and for how many days must you handle animals before any behavioral experiment?",a:["1 min/day for 3 days","2 min/day for 5 days","5 min/day for 3 days","No handling required"],c:1,r:"Experiment Rule #9",e:"Handling for 2 min/day over 5 days reduces stress-induced variability in behavioral experiments."},
+  {s:"🧪 Experimental Design",q:"Why must every cohort include a control group?",a:["For ethical compliance","To control for cohort effects","To increase statistical power only","It's optional if your N is large enough"],c:1,r:"Experiment Rule #10",e:"Cohort effects (seasonal variation, batch differences, equipment drift) can systematically bias results. A within-cohort control group absorbs these effects."},
+  {s:"🧪 Experimental Design",q:"Using peanut butter or food to improve drug self-administration is:",a:["Encouraged for low pressers","Acceptable in cocaine SA only","Forbidden — it's like doping","Fine as long as you document it"],c:2,r:"Experiment Rule #11",e:"Food reinforcement conflates drug-seeking with food-seeking motivation. It artificially inflates SA rates and compromises validity."},
+  {s:"🧪 Experimental Design",q:"When must you check that levers, nose poke holes, lights, tones, and pumps are working in SA chambers?",a:["Once a week","Before every session","Only at the start of a new experiment","Monthly during deep cleaning"],c:1,r:"Experiment Rule #12",e:"Equipment failures mid-session can invalidate data. Pre-session checks are mandatory to protect data quality."},
+  {s:"🧪 Experimental Design",q:"How often should you deep clean each self-administration chamber grid/tray?",a:["Daily","Once a week","Once a month","After every experiment"],c:1,r:"Experiment Rule #14",e:"Weekly deep cleaning prevents buildup of urine, feces, and odor cues that could influence animal behavior across sessions."},
+  {s:"🧪 Experimental Design",q:"What is the correct order for dissolving drugs?",a:["Dissolve in saline first, then solvent","Dissolve in solvent first (e.g., DMSO), then saline/PBS/aCSF","Mix all together at once","Dissolve in water and adjust pH"],c:1,r:"Experiment Rule #15",e:"Many compounds are insoluble in aqueous solution. Dissolve fully in carrier solvent first, then dilute into saline/PBS/aCSF."},
+  {s:"🧪 Experimental Design",q:"When should you prepare drugs fresh?",a:["Always, no exceptions","Unless you have published evidence that storage and reuse is acceptable","Only for IP injections","Only for controlled substances"],c:1,r:"Experiment Rule #16",e:"Many drugs degrade over time or with freeze-thaw cycles. Reuse is only acceptable when published stability data explicitly supports it."},
+  {s:"🧪 Experimental Design",q:"Which of the following is TRUE about compound aliquots?",a:["Refreeze as many times as needed","Aliquot in Eppendorf tubes before freezing; never refreeze","Use one large tube per compound for efficiency","Freezing is optional for stable compounds"],c:1,r:"Experiment Rule #17",e:"Repeated freeze-thaw cycles degrade many compounds. Pre-aliquoting ensures each tube is only thawed once."},
+  {s:"🧪 Experimental Design",q:"You shall NEVER test animals under which of the following conditions?",a:["On a Monday","On the day they are bled, <48h after surgery, or the day their cages are changed","More than 3 days after their last session","After a 12h light cycle shift"],c:1,r:"Experiment Rule #21",e:"Bleeding, surgery, and cage changes are significant stressors that introduce confounds into behavioral data."},
+  {s:"🧪 Experimental Design",q:"IC surgery must never be performed without:",a:["A second surgeon present","METABOND glue","Isoflurane > 2%","Pre-op bloodwork"],c:1,r:"Experiment Rule #22",e:"METABOND is essential to anchor implants securely to the skull. Without it, implants fail prematurely."},
+  {s:"🧪 Experimental Design",q:"When performing IHC, ISH, euthanasia, or behavioral tests on separate groups, you shall:",a:["Test males before females","Always randomize/alternate all groups","Test separate groups on separate days","Schedule by treatment group"],c:1,r:"Experiment Rule #23",e:"Testing groups at different times introduces systematic time-of-day confounds. Randomizing ensures temporal variation is distributed equally."},
+  {s:"🧪 Experimental Design",q:"What is the correct rule for rat unique IDs across experiments?",a:["Restart at #1 each new experiment","Use cage position as the ID","Never restart at #1; increment +1 or +100 from the previous experiment","Assign IDs alphabetically by treatment group"],c:2,r:"Experiment Rule #24",e:"Reusing IDs across experiments creates ambiguity when merging datasets. Incrementing ensures every animal has a globally unique identifier."},
+  {s:"🧪 Experimental Design",q:"To limit attrition in IVSA experiments, you should surge how many extra rats?",a:["1–2 extra per group","An extra 5–10%","Double the cohort size","No extra — stick to the approved IACUC number"],c:1,r:"Experiment Rule #27",e:"Catheter failures are common in IVSA. Surging 5–10% allows swapping out failed-catheter rats early."},
+  {s:"🧪 Experimental Design",q:"During self-administration, if your hypothesis is about INDIVIDUAL DIFFERENCES, what should you do with low pressers?",a:["Exclude them as non-learners","Keep them — you need them to test your hypothesis","Give extra training sessions","Switch them to yoked control"],c:1,r:"Experiment Rule #30",e:"Low pressers represent your low-vulnerability phenotype. Excluding them would bias your sample and invalidate the hypothesis test."},
+  {s:"🧪 Experimental Design",q:"You shall not finish your experiment (euthanasia) without:",a:["IACUC sign-off on the final date","Knowing what the data looks like","At least 80% of animals completing all sessions","A written analysis plan filed with the PI"],c:1,r:"Experiment Rule #33",e:"Euthanizing before checking data is irreversible. Adding 7 days of testing is far easier than repeating a 3-month experiment."},
+  {s:"📊 Data Analysis & Visualization",q:"You shall always create a single master table in Excel. What is the correct structure?",a:["Variables in rows, rats in columns","Variables in columns, every rat in a row, exportable to CSV","One sheet per rat, variables in columns","One sheet per variable, time points in rows"],c:1,r:"Data Rule #1",e:"Tidy data format (one row per subject, one column per variable) is the universal standard for R, Python, and SPSS."},
+  {s:"📊 Data Analysis & Visualization",q:"Conditional formatting on the master table should use a gradient. High values should be coded as:",a:["Blue","Green","Red","Yellow"],c:2,r:"Data Rule #2",e:"Red for high values is the lab convention, immediately flagging extreme values and potential outliers."},
+  {s:"📊 Data Analysis & Visualization",q:"Figures must always be:",a:["Created after statistical analysis is complete","Publication-ready before showing them to anyone","Shared as raw data exports first","In grayscale to save ink"],c:1,r:"Data Rule #3",e:"Publication-ready figures enforce rigor from the start. Every figure shown at meetings should be ready to go into a manuscript."},
+  {s:"📊 Data Analysis & Visualization",q:"Which symbols shall be used to represent significance in all figures?",a:["Only * (asterisk)","*, #, $","p-values displayed directly on figures","ns, *, **, ***"],c:1,r:"Data Rule #4",e:"The lab uses *, #, and $ to distinguish different comparison types on the same figure."},
+  {s:"📊 Data Analysis & Visualization",q:"In a bar chart, where should the control group be placed?",a:["Last (rightmost)","First (leftmost)","Anywhere — convention-dependent","In the center"],c:1,r:"Data Rule #5",e:"Control first (leftmost) is the universal scientific convention, following natural left-to-right reading direction."},
+  {s:"📊 Data Analysis & Visualization",q:"When must you define your hypothesis and sketch expected results?",a:["After collecting data to avoid bias","Before examining the data","After preliminary statistical analysis","When writing the manuscript"],c:1,r:"Data Rule #6",e:"Defining expectations after seeing data is HARKing (Hypothesizing After Results are Known) and is a form of scientific misconduct."},
+  {s:"📊 Data Analysis & Visualization",q:"You shall inspect every raw value file for which of the following?",a:["Color coding errors only","Anomalies: zeros, missing values, shifted columns/rows, wrong headers","Statistical outliers only","Duplicate animal IDs only"],c:1,r:"Data Rule #7",e:"Raw data files frequently contain export artifacts that propagate silently through analysis and produce invalid results if uncaught."},
+  {s:"📊 Data Analysis & Visualization",q:"When excluding animals, exclusions must be based on:",a:["The PI's discretion after seeing the data","Pre-established criteria (surgical failure, health issues, abnormal values), documented in notebook and files","Exclusions are never allowed once data collection starts","Post-hoc statistical outlier tests only"],c:1,r:"Data Rule #9",e:"Post-hoc exclusions based on outcomes are p-hacking. Criteria must be defined before data collection and documented."},
+  {s:"📊 Data Analysis & Visualization",q:"When must you correct for multiple comparisons?",a:["Only for t-tests, not ANOVAs","Never — it reduces statistical power too much","In theory always, but critically when conducting >10–20 tests within a single graph or testing 10–20+ measurements (proteins, genes, etc.)","Only when p-value is between 0.01 and 0.05"],c:2,r:"Data Rule #11",e:"Multiple comparisons inflate false positive rates. Correction is critical at >10–20 tests per graph or when profiling many proteins/genes."},
+  {s:"📊 Data Analysis & Visualization",q:"What must you ALWAYS do before interpreting statistics?",a:["Consult a biostatistician","Visualize your data first","Run a normality test","Log-transform all variables"],c:1,r:"Data Rule #12",e:"A significant p-value can arise from outliers or data artifacts. Always plot data first to understand what the numbers represent."},
+  {s:"📊 Data Analysis & Visualization",q:"Variability must be displayed clearly. Which is acceptable?",a:["Mean ± SEM or SD","Min-max range only","Confidence intervals only, never SEM","No variability display needed if N > 10"],c:0,r:"Data Rule #13",e:"Both SEM and SD are acceptable depending on what you want to convey. Either must be clearly labeled."},
+  {s:"📊 Data Analysis & Visualization",q:"When doing pharmacological testing, all plots must be annotated with:",a:["Drug name and p-value only","Drug dose, time of injection relative to testing, route of administration, and N","Batch number, solvent, and experimenter initials","Author name and date only"],c:1,r:"Data Rule #14",e:"Dose, timing (e.g., 30 min pre-test), route (IP, SC, PO), and N are the minimum required for another researcher to replicate the experiment."},
+  {s:"📊 Data Analysis & Visualization",q:"How must individual data points be displayed for behavioral data?",a:["Always with the same symbol regardless of sex","With different symbols for male and female (with few exceptions if it makes the graph unreadable)","Only males need individual data points; females shown as group means","Individual data points are optional if N > 15"],c:1,r:"Data Rule #15",e:"Sex is a biological variable that must be visible. Different symbols allow readers to detect sex-specific patterns."},
+  {s:"📊 Data Analysis & Visualization",q:"When reporting correlation statistics, you shall ALWAYS use:",a:["A table of r and p values","A scatter plot — never interpret correlation without visualization","A bar chart with error bars","A heatmap of the correlation matrix"],c:1,r:"Data Rule #16",e:"Anscombe's quartet shows identical correlation statistics can have completely different distributions. Always plot correlations."},
+  {s:"📊 Data Analysis & Visualization",q:"Which of the following is FORBIDDEN in figures?",a:["Displaying SEM","Truncated axes or cherry-picked ranges","Using color to differentiate groups","Adding individual data points"],c:1,r:"Data Rule #17",e:"Truncated axes exaggerate effect sizes. Axes should honestly represent the data range."},
+  {s:"📊 Data Analysis & Visualization",q:"All figures must be annotated so that:",a:["The legend alone explains the figure","You can fully understand the figure without reading the legend","Abbreviations are defined in the methods section only","A reader familiar with the field can interpret them"],c:1,r:"Data Rule #18",e:"Figures must be self-contained. All axes, units, symbols, abbreviations, and N must be defined within the figure or caption."},
+  {s:"📊 Data Analysis & Visualization",q:"Sample size (N) must be:",a:["Reported only in the methods section","Clearly displayed in every figure and caption","Shown only when N < 10","Optional if SEM bars are shown"],c:1,r:"Data Rule #19",e:"N in every figure is non-negotiable. Without N, readers cannot evaluate reliability of results."},
+  {s:"📊 Data Analysis & Visualization",q:"Color palettes and symbols must be:",a:["Chosen based on personal preference","Colorblind-accessible and publication-ready","Always grayscale for journals","Limited to 3 colors maximum"],c:1,r:"Data Rule #21",e:"~8% of men have color vision deficiency. Colorblind-accessible palettes meet modern journal standards."},
+  {s:"📊 Data Analysis & Visualization",q:"Alongside p-values, you shall also provide:",a:["Raw F-statistics only","Effect sizes and confidence intervals","Degrees of freedom only","Bonferroni-corrected p-values only"],c:1,r:"Data Rule #22",e:"Effect sizes quantify magnitude; confidence intervals show precision. Both are required alongside p-values."},
+  {s:"📊 Data Analysis & Visualization",q:"How often shall you analyze your behavioral data?",a:["Weekly at lab meeting","Every day, to identify issues and troubleshoot","At the end of each behavioral phase","After collecting all data"],c:1,r:"Data Rule #23",e:"Daily analysis catches equipment failures, identifies non-learners, and allows real-time decisions."},
+  {s:"📊 Data Analysis & Visualization",q:"Repetitive analysis steps should be:",a:["Done manually to ensure accuracy","Automated and built into webapps (e.g., pythonanywhere, Shinyapps) to reduce human error","Outsourced to a biostatistician","Performed independently by two lab members"],c:1,r:"Data Rule #24",e:"Automated pipelines eliminate copy-paste errors and ensure consistency across datasets."},
+  {s:"📊 Data Analysis & Visualization",q:"Negative results shall be:",a:["Excluded from analysis and discussion","Included in your analysis and discussion","Reported only in supplementary materials","Shared only at internal lab meetings"],c:1,r:"Data Rule #25",e:"Negative results are scientifically valid. They rule out hypotheses, prevent redundant experiments, and must be reported honestly."},
+  {s:"📊 Data Analysis & Visualization",q:"Raw and processed data, plus analysis code, shall be added to:",a:["The lab's OneDrive only","The lab GitHub (George-LabX)","A personal hard drive for backup","The institutional data repository only"],c:1,r:"Data Rule #26",e:"The lab GitHub (George-LabX) is the centralized, version-controlled repository for all data and code."},
+  {s:"📊 Data Analysis & Visualization",q:"Findings must be interpreted:",a:["As broadly as possible to maximize impact","Within the limits of the data, avoiding overgeneralization or unjustified causal inference","With reference to human translational significance always","Based on the PI's prior published work"],c:1,r:"Data Rule #27",e:"Interpret only what your data can support: your species, sex, age, dose, route, paradigm, and timeframe."},
+  {s:"🗂️ Data Management",q:"Commandment I: What must you NEVER do to raw data?",a:["Back it up to two locations","Touch it — lock read-only; all work happens on copies","Rename it using the standard naming convention","Store it in the project folder"],c:1,r:"Data Management Commandment I",e:"Raw data is your ground truth. Once modified, original values are gone forever. Lock raw files as read-only immediately."},
+  {s:"🗂️ Data Management",q:"Commandment II: What is the correct file naming format?",a:["ProjectName_SubjectID_Version.ext","YYYYMMDD_project_subject_assay_condition_session_version.ext","LastName_Date_Experiment.ext","Any clear name — consistency matters more than format"],c:1,r:"Data Management Commandment II",e:"YYYYMMDD ensures chronological sorting. Including all fields makes files self-describing. No spaces or accents."},
+  {s:"🗂️ Data Management",q:"Commandment III: Animal/sample unique IDs must be:",a:["Derived from cage position for traceability","Assigned at acquisition, never reused, never renumbered — follows sample from cage to confocal","Reset at the start of each new grant period","Assigned by the animal facility"],c:1,r:"Data Management Commandment III",e:"A unique permanent ID assigned at acquisition is the only way to track a sample through every step from cage to confocal."},
+  {s:"🗂️ Data Management",q:"Commandment IV: What is the correct project folder structure?",a:["Organized by date only","00_admin, 01_protocols, 02_raw_data, 03_processed_data, 04_analysis, 05_results, 06_manuscripts, README.md","One folder per rat","Organized by experimental phase"],c:1,r:"Data Management Commandment IV",e:"A standardized folder template means any lab member can navigate any project. The README provides essential context."},
+  {s:"🗂️ Data Management",q:"Commandment V: 'Tidy' spreadsheets require which of the following?",a:["Merged cells for clarity, units in headers, one table per file","One rat per row, one variable per column, no merged cells, ISO 8601 dates, NA for missing values","Multiple tables per file to group related variables","Units in column headers, one sheet per experimental group"],c:1,r:"Data Management Commandment V",e:"Tidy data is machine-readable by R, Python, and SPSS. Merged cells break imports. NA (not blank) ensures correct handling of missing values."},
+  {s:"🗂️ Data Management",q:"Commandment VI: Every dataset must have a companion _dictionary.csv containing:",a:["Author names and date of creation","Column name, units, allowed values, formula, and definition for every variable","A list of excluded animals only","The statistical analysis plan"],c:1,r:"Data Management Commandment VI",e:"Without a data dictionary, column names are ambiguous. The dictionary makes every variable self-documenting."},
+  {s:"🗂️ Data Management",q:"Commandment VII: Raw acquisition files (.czi, .lif, FASTQ, MedPC events, etc.) must be:",a:["Converted to JPEG or CSV for storage efficiency","Kept in their native format with metadata intact — the summary spreadsheet is NOT the raw data","Re-saved through ImageJ for standardization","Deleted after processing to save server space"],c:1,r:"Data Management Commandment VII",e:"Native files contain full metadata lost on conversion. Re-saving through ImageJ as JPEG introduces lossy compression."},
+  {s:"🗂️ Data Management",q:"Commandment VIII: The README file for a dataset must include:",a:["Only the list of files in the folder","Who, when, where, what protocol, what subjects, conditions, exclusions, and who to contact","Statistical results summary","Animal facility contact information only"],c:1,r:"Data Management Commandment VIII",e:"The README answers every question a new postdoc would have about the dataset without needing to ask anyone."},
+  {s:"🗂️ Data Management",q:"Commandment IX: The backup rule is:",a:["One cloud backup is sufficient","Two copies, two different media, one off-site — exported at the end of every session","Weekly backup to the lab server is sufficient","Backup only when a project is complete"],c:1,r:"Data Management Commandment IX",e:"The 3-2-1 backup rule: 3 copies, 2 media, 1 off-site. Export at the end of every session."},
+  {s:"🗂️ Data Management",q:"Commandment X: The 'postdoc test' states that a dataset is only finished when:",a:["The PI approves the final figures","A new postdoc can reproduce a figure from your folder without asking you a single question","The manuscript is submitted","All exclusions are documented"],c:1,r:"Data Management Commandment X",e:"If a new lab member cannot independently navigate your folder and reproduce a figure, your data management is incomplete."},
+];
+
+const SECTION_COLORS = {
+  "🧪 Experimental Design":           {bg:"#fff7ed",border:"#fb923c",badge:"#ea580c"},
+  "📊 Data Analysis & Visualization": {bg:"#eff6ff",border:"#60a5fa",badge:"#2563eb"},
+  "🗂️ Data Management":              {bg:"#f0fdf4",border:"#4ade80",badge:"#16a34a"},
+};
+
+function gradeLabel(p){return p===100?"🏆 Perfect Score":p>=85?"🥼 Senior Researcher":p>=70?"🐀 Competent Lab Member":p>=50?"⚠️ Needs Review":"🚨 Lab Probation"}
+function gradeColor(p){return p===100?"#22c55e":p>=85?"#3b82f6":p>=70?"#8b5cf6":p>=50?"#f59e0b":"#ef4444"}
+function formatDate(iso){const d=new Date(iso);return d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})+" "+d.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"})}
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+
+// ── State ─────────────────────────────────────────────────────────
+let staffName="", questions=[], idx=0, score=0, violations=[];
+let selectedOpt=null, confirmed=false, expVisible=false;
+let currentResult=null, adminUnlocked=false, sortBy="date";
+let allResults=[];
+
+// ── Storage ───────────────────────────────────────────────────────
+function loadResults(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]")}catch{return[]}}
+function saveLocal(entry){const r=loadResults();r.unshift(entry);localStorage.setItem(STORAGE_KEY,JSON.stringify(r.slice(0,500)))}
+
+// ── Webhook ───────────────────────────────────────────────────────
+async function sendToWebhook(entry){
+  try{
+    const res=await fetch(WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(entry)});
+    return res.ok;
+  }catch(e){console.error("Webhook error:",e);return false;}
+}
+
+// ── Screens ───────────────────────────────────────────────────────
+function show(id){["name","quiz","results","leaderboard"].forEach(s=>document.getElementById("screen-"+s).classList.remove("active"));document.getElementById("screen-"+id).classList.add("active")}
+
+// ── Name screen ───────────────────────────────────────────────────
+document.getElementById("name-input").addEventListener("input",function(){
+  document.getElementById("start-btn").disabled=!this.value.trim();
+});
+
+function startQuiz(){
+  staffName=document.getElementById("name-input").value.trim();
+  if(!staffName)return;
+  questions=shuffle(ALL_QUESTIONS);
+  idx=0;score=0;violations=[];
+  renderQuestion();
+  show("quiz");
+}
+
+async function runTest(){
+  const btn=document.getElementById("test-btn");
+  const note=document.getElementById("test-note");
+  btn.textContent="⏳ Sending test entry…";
+  btn.disabled=true;
+  note.style.display="none";
+
+  const entry={
+    name:"TEST USER (auto)",
+    score:ALL_QUESTIONS.length-3,
+    total:ALL_QUESTIONS.length,
+    violations:ALL_QUESTIONS.slice(0,3).map(q=>({
+      rule:q.r,question:q.q,
+      chosen:q.a[(q.c+1)%q.a.length],
+      correct:q.a[q.c],explanation:q.e
+    })),
+    date:new Date().toISOString()
+  };
+
+  const ok=await sendToWebhook(entry);
+  if(ok){
+    btn.textContent="✅ Confirmed! Webhook received the data";
+    btn.style.color="#22c55e";
+    note.textContent="Now check Make.com — wire the webhook to Airtable to complete the setup.";
+    note.style.display="block";
+    saveLocal(entry);
+  }else{
+    btn.textContent="❌ Failed — check the webhook URL";
+    btn.style.color="#ef4444";
+  }
+  btn.disabled=false;
+}
+
+// ── Quiz ──────────────────────────────────────────────────────────
+function renderQuestion(){
+  const q=questions[idx];
+  const colors=SECTION_COLORS[q.s];
+  const total=questions.length;
+
+  document.getElementById("quiz-name-label").textContent="George Lab · "+staffName;
+  document.getElementById("quiz-progress").textContent=(idx+1)+"/"+total;
+  document.getElementById("quiz-score-label").textContent="Score: "+score;
+  document.getElementById("progress-bar").style.width=((idx/total)*100)+"%";
+
+  const badge=document.getElementById("section-badge");
+  badge.textContent=q.s;
+  badge.style.background=colors.badge;
+
+  const qcard=document.getElementById("question-card");
+  qcard.style.background=colors.bg;
+  qcard.style.borderColor=colors.border;
+  document.getElementById("question-rule").textContent=q.r;
+  document.getElementById("question-rule").style.color=colors.badge;
+  document.getElementById("question-text").textContent=q.q;
+
+  const shuffled=shuffle(q.a.map((text,i)=>({text,origIdx:i})));
+  const container=document.getElementById("answers-container");
+  container.innerHTML="";
+  shuffled.forEach((opt,i)=>{
+    const btn=document.createElement("button");
+    btn.className="answer-btn";
+    btn.innerHTML=`<span class="answer-circle" style="background:#e2e8f0;color:#94a3b8">${String.fromCharCode(65+i)}</span>${opt.text}`;
+    btn.dataset.origIdx=opt.origIdx;
+    btn.onclick=()=>selectAnswer(btn,opt.origIdx);
+    container.appendChild(btn);
+  });
+
+  selectedOpt=null;confirmed=false;expVisible=false;
+  document.getElementById("confirm-btn").disabled=true;
+  document.getElementById("confirm-btn").style.display="block";
+  document.getElementById("feedback-area").style.display="none";
+  document.getElementById("explanation").style.display="none";
+  document.getElementById("exp-btn").textContent="💡 Why? Show Explanation ▼";
+}
+
+function selectAnswer(btn,origIdx){
+  if(confirmed)return;
+  document.querySelectorAll(".answer-btn").forEach(b=>{b.classList.remove("selected");b.querySelector(".answer-circle").style.background="#e2e8f0";b.querySelector(".answer-circle").style.color="#94a3b8"});
+  btn.classList.add("selected");
+  btn.querySelector(".answer-circle").style.background="#3b82f6";
+  btn.querySelector(".answer-circle").style.color="white";
+  selectedOpt=parseInt(btn.dataset.origIdx);
+  document.getElementById("confirm-btn").disabled=false;
+}
+
+function confirmAnswer(){
+  if(selectedOpt===null)return;
+  confirmed=true;
+  const q=questions[idx];
+  const isCorrect=selectedOpt===q.c;
+
+  document.querySelectorAll(".answer-btn").forEach(btn=>{
+    const oi=parseInt(btn.dataset.origIdx);
+    const circle=btn.querySelector(".answer-circle");
+    if(oi===q.c){btn.classList.add("correct");circle.style.background="#22c55e";circle.textContent="✓";}
+    else if(oi===selectedOpt&&!isCorrect){btn.classList.add("wrong");circle.style.background="#ef4444";circle.textContent="✗";}
+  });
+
+  if(isCorrect){score++;}
+  else{
+    violations.push({rule:q.r,question:q.q,correct:q.a[q.c],chosen:q.a[selectedOpt],explanation:q.e});
+  }
+
+  const fb=document.getElementById("feedback-msg");
+  fb.className="feedback "+(isCorrect?"correct":"wrong");
+  fb.textContent=isCorrect?"✅ Correct!":"❌ Incorrect — Correct: "+q.a[q.c];
+  document.getElementById("explanation").textContent=q.e;
+
+  document.getElementById("confirm-btn").style.display="none";
+  document.getElementById("feedback-area").style.display="block";
+  document.getElementById("next-btn").textContent=(idx+1>=questions.length)?"See Results 🏁":"Next Question →";
+}
+
+function toggleExp(){
+  expVisible=!expVisible;
+  document.getElementById("explanation").style.display=expVisible?"block":"none";
+  document.getElementById("exp-btn").textContent=expVisible?"Hide Explanation ▲":"💡 Why? Show Explanation ▼";
+}
+
+async function nextQuestion(){
+  if(idx+1>=questions.length){
+    await finishQuiz();
+  }else{
+    idx++;
+    renderQuestion();
+  }
+}
+
+async function finishQuiz(){
+  currentResult={name:staffName,score,total:questions.length,violations,date:new Date().toISOString()};
+  renderResults(currentResult);
+  show("results");
+
+  const savingEl=document.getElementById("result-saving");
+  savingEl.textContent="💾 Saving to Airtable…";
+  savingEl.style.color="#64748b";
+
+  const ok=await sendToWebhook(currentResult);
+  saveLocal(currentResult);
+
+  savingEl.textContent=ok?"✓ Saved to Airtable":"⚠️ Saved locally (Airtable sync failed)";
+  savingEl.style.color=ok?"#22c55e":"#f59e0b";
+}
+
+// ── Results ───────────────────────────────────────────────────────
+function renderResults(r){
+  const pct=Math.round((r.score/r.total)*100);
+  document.getElementById("result-name-date").textContent=r.name+" · "+formatDate(r.date);
+  document.getElementById("result-score").textContent=r.score+"/"+r.total;
+  document.getElementById("result-score").style.color=gradeColor(pct);
+  document.getElementById("result-pct").textContent=pct+"%";
+  document.getElementById("result-grade").textContent=gradeLabel(pct);
+
+  const vc=document.getElementById("violations-container");
+  if(r.violations.length===0){
+    vc.innerHTML='<div class="perfect">🎉 Zero violations — the George Lab is proud of you.</div>';
+  }else{
+    let html='<div class="violation-box"><h2>⛔ Commandment Violations ('+r.violations.length+')</h2>';
+    r.violations.forEach((v,i)=>{
+      html+=`<div class="violation-item">
+        <div class="violation-rule">${v.rule}</div>
+        <div class="violation-q">${v.question}</div>
+        <div class="violation-wrong">✗ You answered: ${v.chosen}</div>
+        <div class="violation-correct">✓ Correct: ${v.correct}</div>
+        <button class="exp-toggle" onclick="toggleResultExp(${i})">💡 Show explanation ▼</button>
+        <div class="exp-detail" id="rexp-${i}" style="display:none">${v.explanation}</div>
+      </div>`;
+    });
+    html+='</div>';
+    vc.innerHTML=html;
+  }
+}
+
+function toggleResultExp(i){
+  const el=document.getElementById("rexp-"+i);
+  const btn=el.previousElementSibling;
+  const vis=el.style.display==="block";
+  el.style.display=vis?"none":"block";
+  btn.textContent=vis?"💡 Show explanation ▼":"Hide explanation ▲";
+}
+
+function downloadResults(){
+  const r=currentResult;
+  const pct=Math.round((r.score/r.total)*100);
+  let txt="GEORGE LAB — COMMANDMENTS QUIZ RESULTS\n========================================\n";
+  txt+=`Name: ${r.name}\nDate: ${formatDate(r.date)}\nScore: ${r.score}/${r.total} (${pct}%)\nGrade: ${gradeLabel(pct)}\n\n`;
+  if(r.violations.length===0){txt+="✓ No violations!\n";}
+  else{
+    txt+=`VIOLATIONS (${r.violations.length}):\n`;
+    r.violations.forEach((v,i)=>{txt+=`\n${i+1}. [${v.rule}]\n   Q: ${v.question}\n   Your answer: ${v.chosen}\n   ✓ Correct: ${v.correct}\n   Explanation: ${v.explanation}\n`;});
+  }
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([txt],{type:"text/plain"}));
+  a.download=`GeorgeLab_Quiz_${r.name.replace(/\s+/g,"_")}_${r.date.slice(0,10)}.txt`;
+  a.click();
+}
+
+function retake(){document.getElementById("name-input").value="";document.getElementById("start-btn").disabled=true;show("name")}
+
+// ── Leaderboard ───────────────────────────────────────────────────
+function showLeaderboard(){
+  allResults=loadResults();
+  adminUnlocked=false;
+  sortBy="date";
+  renderLeaderboard();
+  show("leaderboard");
+}
+
+function backFromLeaderboard(){currentResult?show("results"):show("name")}
+
+function renderLeaderboard(){
+  const sorted=[...allResults].sort((a,b)=>{
+    if(sortBy==="score")return(b.score/b.total)-(a.score/a.total);
+    if(sortBy==="name")return a.name.localeCompare(b.name);
+    return new Date(b.date)-new Date(a.date);
+  });
+
+  let html="";
+
+  if(allResults.length===0){
+    html='<div class="empty">No results yet. Results appear here after staff complete the quiz.</div>';
+  }else{
+    html+=`<div class="sort-bar">
+      <button class="sort-btn ${sortBy==="date"?"active":"inactive"}" onclick="setSort('date')">📅 Date</button>
+      <button class="sort-btn ${sortBy==="score"?"active":"inactive"}" onclick="setSort('score')">🏆 Score</button>
+      <button class="sort-btn ${sortBy==="name"?"active":"inactive"}" onclick="setSort('name')">🔤 Name</button>
+      <span class="sort-count">${allResults.length} attempt${allResults.length!==1?"s":""}</span>
+    </div>`;
+
+    sorted.forEach((entry,i)=>{
+      const pct=Math.round((entry.score/entry.total)*100);
+      const col=gradeColor(pct);
+      const hasViol=entry.violations&&entry.violations.length>0;
+      html+=`<div class="entry">
+        <div class="entry-header">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <div><span class="entry-name">${entry.name}</span><span class="entry-date">${formatDate(entry.date)}</span></div>
+            <div><span class="entry-pct" style="color:${col}">${pct}%</span><span class="entry-score">${entry.score}/${entry.total}</span></div>
+          </div>
+          <div class="entry-bar"><div class="entry-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:12px;color:${hasViol?"#dc2626":"#15803d"}">${hasViol?"⛔ "+entry.violations.length+" violation"+(entry.violations.length!==1?"s":""):"✓ Perfect score"}</div>
+            ${adminUnlocked&&hasViol?`<button class="exp-toggle" onclick="toggleEntry(${i})">View violations ▼</button>`:""}
+          </div>
+        </div>
+        ${adminUnlocked?`<div class="viol-detail" id="entry-${i}" style="display:none">
+          <div class="viol-detail-title">Violation Details — Admin View</div>
+          ${(entry.violations||[]).map(v=>`
+            <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #fed7aa">
+              <div class="violation-rule">${v.rule}</div>
+              <div class="violation-q">${v.question}</div>
+              <div style="font-size:12px;color:#991b1b">✗ Answered: ${v.chosen}</div>
+              <div style="font-size:12px;color:#15803d;font-weight:600;margin-bottom:5px">✓ Correct: ${v.correct}</div>
+              <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:8px 10px;font-size:12px;color:#92400e;line-height:1.5">💡 ${v.explanation}</div>
+            </div>`).join("")}
+        </div>`:""}
+      </div>`;
+    });
+  }
+
+  // Admin panel
+  if(!adminUnlocked){
+    html+=`<div class="admin-box">
+      <h3>🔒 Admin Access — Enter PIN to view violation details & export</h3>
+      <div class="pin-row">
+        <input type="password" id="pin-input" placeholder="Enter PIN" onkeydown="if(event.key==='Enter')tryPin()">
+        <button class="btn-dark" style="width:auto;padding:10px 18px;font-size:13px" onclick="tryPin()">Unlock</button>
+      </div>
+      <div class="pin-error" id="pin-error" style="display:none">Incorrect PIN.</div>
+    </div>`;
+  }else{
+    html+=`<div class="btn-row">
+      <div class="admin-unlocked">🔓 Admin unlocked</div>
+      <button class="btn-dark" style="font-size:13px" onclick="downloadAll()">⬇ Export All</button>
+    </div>
+    <button class="btn-danger" onclick="confirmClear()" style="width:100%;padding:11px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;margin-bottom:8px">Clear All Results</button>`;
+  }
+
+  document.getElementById("lb-content").innerHTML=html;
+}
+
+function setSort(s){sortBy=s;renderLeaderboard()}
+
+function toggleEntry(i){
+  const el=document.getElementById("entry-"+i);
+  if(!el)return;
+  const vis=el.style.display==="block";
+  el.style.display=vis?"none":"block";
+}
+
+function tryPin(){
+  const val=document.getElementById("pin-input").value;
+  if(val===ADMIN_PIN){adminUnlocked=true;renderLeaderboard();}
+  else{document.getElementById("pin-error").style.display="block";}
+}
+
+function downloadAll(){
+  let txt="GEORGE LAB — ALL STAFF QUIZ RESULTS\n=====================================\n\n";
+  allResults.forEach((entry,i)=>{
+    const pct=Math.round((entry.score/entry.total)*100);
+    txt+=`[${i+1}] ${entry.name} — ${formatDate(entry.date)}\n`;
+    txt+=`Score: ${entry.score}/${entry.total} (${pct}%) — ${gradeLabel(pct)}\n`;
+    if(entry.violations?.length>0){
+      txt+=`Violations (${entry.violations.length}):\n`;
+      entry.violations.forEach((v,vi)=>{txt+=`  ${vi+1}. [${v.rule}]\n     Q: ${v.question}\n     Answered: ${v.chosen}\n     Correct: ${v.correct}\n`});
+    }else txt+="No violations.\n";
+    txt+="\n";
+  });
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([txt],{type:"text/plain"}));
+  a.download=`GeorgeLab_AllResults_${new Date().toISOString().slice(0,10)}.txt`;
+  a.click();
+}
+
+function confirmClear(){
+  if(confirm("Delete all quiz results? This cannot be undone.")){
+    localStorage.removeItem(STORAGE_KEY);
+    allResults=[];
+    renderLeaderboard();
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+show("name");
+</script>
+</body>
+</html>
